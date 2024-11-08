@@ -1,6 +1,6 @@
-const { Router } = require("express");
-const { userMiddleware } = require("../middleware/user");
-const { purchaseModel, courseModel } = require("../db")
+import { Router } from "express";
+import { userMiddleware } from "../middleware/user";
+import { purchaseModel, courseModel } from "../db";
 const courseRouter = Router();
 
 courseRouter.post("/purchase", userMiddleware, async function(req, res) {
@@ -27,6 +27,4 @@ courseRouter.get("/preview", async function(req, res) {
     })
 })
 
-module.exports = {
-    courseRouter: courseRouter
-}
+export default courseRouter;
