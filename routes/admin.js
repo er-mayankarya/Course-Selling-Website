@@ -1,25 +1,53 @@
 const { Router } = require("express");
 const adminRouter = Router();
-
 const { adminModel } = require("../db");
+const jwt = require("jsonwebtoken");
+const { JWT_ADMIN_SECRET } = require("../config");
 
 //Signup Endpoint
-adminRouter.post("/signup" , (req , res) => {
-    const eamil = req.body.email;
-    const username = req.body.username;
-    const password = req.body.password;
+adminRouter.post("/signup" , async (req , res) => {
+    const { email, password, firstName } = req.body;
+
+    //TODO : Zod Validation
+    //TODO : Hashing the Password
+    //TODO : try-catch block
+
+    await adminModel.create({
+        email,
+        password,
+        firstName
+    })
 
     res.json({
-        message : "Signed Up"
+        message: "Signed Up"
     })
 });
 
 
 //Signin Endpoint
-adminRouter.post("/signin" , (req , res) => {
-    res.json({
-        message : "Signed In"
-    })
+adminRouter.post("/signin" , async (req , res) => {
+    const { email, password } = req.body;
+
+    //TODO : Compare with the Hashed Passwordv
+
+    const admin = await adminModel.findOne({
+        email: email,
+        password: password
+    });
+
+    if (admin) {
+        const token = jwt.sign({
+            id: admin._id
+        }, JWT_ADMIN_SECRET)
+
+        res.json({
+            token
+        })
+    }else{
+        res.status(401).json({
+            messagwe : "Incorrect Credentials"
+        })
+    }
 })
 
 //Create Courses

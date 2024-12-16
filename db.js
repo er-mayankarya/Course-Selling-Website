@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema({
     email : String ,
     password : String ,
-    name : String
+    firstName : String
 });
 
 const adminSchema = new mongoose.Schema({
