@@ -1,13 +1,10 @@
 const { Router } = require("express");
-
+const { userModel } = require("../db");
 const userRouter = Router();
 
 //Signup Endpoint
-userRouter.post("/signup" , (req , res) => {
-    const eamil = req.body.email;
-    const username = req.body.username;
-    const password = req.body.password;
-
+userRouter.post("/signup" , async (req , res) => {
+    
     res.json({
         message : "Signed Up"
     })

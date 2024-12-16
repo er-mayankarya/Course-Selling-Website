@@ -1,6 +1,8 @@
 const { Router } = require("express");
 const adminRouter = Router();
 
+const { adminModel } = require("../db");
+
 //Signup Endpoint
 adminRouter.post("/signup" , (req , res) => {
     const eamil = req.body.email;
@@ -21,21 +23,21 @@ adminRouter.post("/signin" , (req , res) => {
 })
 
 //Create Courses
-adminRouter.post("/course" , (req , res) => {
+adminRouter.post("/" , (req , res) => {
     res.json({
         message : "Signed In"
     })
 })
 
 //Update Course
-adminRouter.put("/course" , (req , res) => {
+adminRouter.put("/" , (req , res) => {
     res.json({
         message : "Signed In"
     })
 })
 
 //My purchases Endpoint
-adminRouter.get("/course/bulk" , (req , res) => {
+adminRouter.get("/bulk" , (req , res) => {
     res.json({
         message : "Signed In"
     })
