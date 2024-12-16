@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const { userModel } = require("../db");
 const { JWT_USER_SECRET } = require("../config");
 const userRouter = Router();
+const { userMiddleware } = require("../middleware/user");
 
 //Signup Endpoint
 userRouter.post("/signup", async (req, res) => {
@@ -51,7 +52,7 @@ userRouter.post("/signin", async (req, res) => {
 })
 
 //My purchases Endpoint
-userRouter.get("/purchases", (req, res) => {
+userRouter.get("/purchases", userMiddleware , (req, res) => {
     res.json({
         message: "Signed In"
     })
