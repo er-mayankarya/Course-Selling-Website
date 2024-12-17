@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const jwt = require("jsonwebtoken");
-const { userModel } = require("../db");
+const { userModel, purchaseModel } = require("../db");
 const { JWT_USER_SECRET } = require("../config");
 const userRouter = Router();
 const { userMiddleware } = require("../middleware/user");
@@ -41,6 +41,8 @@ userRouter.post("/signin", async (req, res) => {
             id: user._id
         }, JWT_USER_SECRET)
 
+        res.header("token" , token);
+
         res.json({
             token
         })
@@ -52,9 +54,15 @@ userRouter.post("/signin", async (req, res) => {
 })
 
 //My purchases Endpoint
-userRouter.get("/purchases", userMiddleware , (req, res) => {
+userRouter.get("/purchases", userMiddleware , async (req, res) => {
+    const userId = req.userId;
+    
+    const purchases = await purchaseModel.find({
+        userId
+    })
+
     res.json({
-        message: "Signed In"
+       purchases
     })
 })
 

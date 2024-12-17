@@ -44,6 +44,8 @@ adminRouter.post("/signin", async (req, res) => {
             JWT_ADMIN_SECRET
         );
 
+        res.header("token" , token);
+
         res.json({
             token,
         });
@@ -56,7 +58,7 @@ adminRouter.post("/signin", async (req, res) => {
 
 
 //Create Courses
-adminRouter.post("/create" , adminMiddleware , async (req , res) => {
+adminRouter.post("/course" , adminMiddleware , async (req , res) => {
     const creatorId = req.creatorId;
 
     const { title, description, price, imageUrl } = req.body;
@@ -76,7 +78,7 @@ adminRouter.post("/create" , adminMiddleware , async (req , res) => {
 });
 
 //Update Course
-adminRouter.put("/update",  adminMiddleware , async (req, res) => {
+adminRouter.put("/course",  adminMiddleware , async (req, res) => {
     const creatorId = req.creatorId;
 
     const { title, description, price, imageUrl , courseId} = req.body;
