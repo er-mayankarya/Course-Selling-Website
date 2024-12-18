@@ -4,115 +4,128 @@ const { adminModel, courseModel } = require("../db");
 const jwt = require("jsonwebtoken");
 const { JWT_ADMIN_SECRET } = require("../config");
 const { default: mongoose } = require("mongoose");
-const { adminMiddleware } = require("../middleware/admin")
+const { adminMiddleware } = require("../middleware/admin");
+const bcrypt = require("bcrypt");
 
 //Signup Endpoint
 adminRouter.post("/signup", async (req, res) => {
-    const { email, password, firstName } = req.body;
+  const { email, password, firstName } = req.body;
 
-    //TODO : Zod Validation
-    //TODO : Hashing the Password
-    //TODO : try-catch block
+  const hasedPassword = await bcrypt.hash(password);
+  console.log(hasedPassword);
 
-    await adminModel.create({
-        email,
-        password,
-        firstName,
-    });
+  //TODO : Zod Validation
+  //TODO : Hashing the Password
+  //TODO : try-catch block
 
-    res.json({
-        message: "Signed Up",
-    });
+  await adminModel.create({
+    email,
+    password : hasedPassword,
+    firstName,
+  });
+
+  res.json({
+    message: "Signed Up",
+  });
 });
 
 //Signin Endpoint
 adminRouter.post("/signin", async (req, res) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    //TODO : Compare with the Hashed Passwordv
+  //TODO : Compare with the Hashed Passwordv
 
-    const admin = await adminModel.findOne({
-        email: email,
-        password: password,
+  const admin = await adminModel.findOne({
+    email: email,
+  });
+
+  if (!admin) {
+    res.status(403).send({
+      message: "User doesn't exit in our DB",
     });
+  }
 
-    if (admin) {
-        const token = jwt.sign(
-            {
-                id: admin._id,
-            },
-            JWT_ADMIN_SECRET
-        );
+  const passwordMatch = await bcrypt.compare(password, admin.password);
 
-        res.header("token" , token);
+  if (admin && passwordMatch) {
+    const token = jwt.sign(
+      {
+        id: admin._id.toString(),
+      },
+      JWT_ADMIN_SECRET
+    );
 
-        res.json({
-            token,
-        });
-    } else {
-        res.status(401).json({
-            messagwe: "Incorrect Credentials",
-        });
-    }
-});
-
-
-//Create Courses
-adminRouter.post("/course" , adminMiddleware , async (req , res) => {
-    const creatorId = req.creatorId;
-
-    const { title, description, price, imageUrl } = req.body;
-
-    const course = await courseModel.create({
-        title,
-        description,
-        price,
-        imageUrl,
-        creatorId,
-    });
+    res.header("token", token);
 
     res.json({
-        message: "Course Created",
-        courseId: course._id,
+      token,
     });
+  } else {
+    res.status(401).json({
+      messagwe: "Incorrect Credentials",
+    });
+  }
+});
+
+//Create Courses
+adminRouter.post("/course", adminMiddleware, async (req, res) => {
+  const creatorId = req.creatorId;
+
+  const { title, description, price, imageUrl } = req.body;
+
+  const course = await courseModel.create({
+    title,
+    description,
+    price,
+    imageUrl,
+    creatorId,
+  });
+
+  res.json({
+    message: "Course Created",
+    courseId: course._id,
+  });
 });
 
 //Update Course
-adminRouter.put("/course",  adminMiddleware , async (req, res) => {
-    const creatorId = req.creatorId;
+adminRouter.put("/course", adminMiddleware, async (req, res) => {
+  const creatorId = req.creatorId;
 
-    const { title, description, price, imageUrl , courseId} = req.body;
+  const { title, description, price, imageUrl, courseId } = req.body;
 
-    const course = await courseModel.updateOne({
-        _id : courseId ,
-        creatorId : creatorId
-    } ,{
-        title,
-        description,
-        price,
-        imageUrl,
-    });
+  const course = await courseModel.updateOne(
+    {
+      _id: courseId,
+      creatorId: creatorId,
+    },
+    {
+      title,
+      description,
+      price,
+      imageUrl,
+    }
+  );
 
-    res.json({
-        message: "Course Updated",
-        courseId: course._id,
-    });
+  res.json({
+    message: "Course Updated",
+    courseId: course._id,
+  });
 });
 
 //My purchases Endpoint
-adminRouter.get("/bulk",  adminMiddleware  , async (req , res) => {
-    const creatorId = req.creatorId;
+adminRouter.get("/bulk", adminMiddleware, async (req, res) => {
+  const creatorId = req.creatorId;
 
-    const courses = await courseModel.find({
-        creatorId : creatorId
-    });
+  const courses = await courseModel.find({
+    creatorId: creatorId,
+  });
 
-    res.json({
-        message: "All Courses",
-        courses
-    });
+  res.json({
+    message: "All Courses",
+    courses,
+  });
 });
 
 module.exports = {
-    adminRouter: adminRouter
+  adminRouter: adminRouter,
 };

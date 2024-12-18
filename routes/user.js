@@ -4,10 +4,13 @@ const { userModel, purchaseModel } = require("../db");
 const { JWT_USER_SECRET } = require("../config");
 const userRouter = Router();
 const { userMiddleware } = require("../middleware/user");
+const bcrypt = require('bcrypt');
 
 //Signup Endpoint
 userRouter.post("/signup", async (req, res) => {
     const { email, password, firstName } = req.body;
+
+    const hasedPassword = await bcrypt.hash(password , 5);
 
     //TODO : Zod Validation
     //TODO : Hashing the Password
@@ -15,7 +18,7 @@ userRouter.post("/signup", async (req, res) => {
 
     await userModel.create({
         email,
-        password,
+        password : hasedPassword ,
         firstName
     })
 
@@ -29,16 +32,24 @@ userRouter.post("/signup", async (req, res) => {
 userRouter.post("/signin", async (req, res) => {
     const { email, password } = req.body;
 
-    //TODO : Compare with the Hashed Passwordv
+    //TODO : Compare with the Hashed Password
 
     const user = await userModel.findOne({
         email: email,
-        password: password
+        
     });
 
-    if (user) {
+    if (!user) {
+        res.status(403).send({
+            message : "User doesn't exit in our DB"
+        })
+    }
+
+    const passwordMatch = await bcrypt.compare(password , user.password);
+
+    if (user && passwordMatch ) {
         const token = jwt.sign({
-            id: user._id
+            id: user._id.toString()
         }, JWT_USER_SECRET)
 
         res.header("token" , token);
