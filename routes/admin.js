@@ -11,11 +11,10 @@ const bcrypt = require("bcrypt");
 adminRouter.post("/signup", async (req, res) => {
   const { email, password, firstName } = req.body;
 
-  const hasedPassword = await bcrypt.hash(password);
-  console.log(hasedPassword);
+  //Hashing the Password
+  const hasedPassword = await bcrypt.hash(password , 2);
 
   //TODO : Zod Validation
-  //TODO : Hashing the Password
   //TODO : try-catch block
 
   await adminModel.create({

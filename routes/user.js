@@ -8,13 +8,13 @@ const bcrypt = require('bcrypt');
 
 //Signup Endpoint
 userRouter.post("/signup", async (req, res) => {
+    //TODO : Zod Validation
+    //TODO : try-catch block
+    
     const { email, password, firstName } = req.body;
 
-    const hasedPassword = await bcrypt.hash(password , 5);
-
-    //TODO : Zod Validation
-    //TODO : Hashing the Password
-    //TODO : try-catch block
+    //Hashing the Password
+    const hasedPassword = await bcrypt.hash(password , 2);
 
     await userModel.create({
         email,
